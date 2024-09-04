@@ -7,7 +7,7 @@ L = instaloader.Instaloader()
 
 
 USERNAME = "_harinadh___"  
-PASSWORD = "Hari@5297"  
+PASSWORD = ""  
 L.login(USERNAME, PASSWORD)
 
 
