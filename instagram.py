@@ -1,49 +1,86 @@
-import instaloader
-from datetime import datetime
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 import csv
 import time
 
-L = instaloader.Instaloader()
+# Path to your ChromeDriver executable
+chrome_driver_path = r'C:\WebDriver\chromedriver-win64\chromedriver.exe'
 
+# Initialize WebDriver
+service = Service(chrome_driver_path)
+options = Options()
+options.add_argument("--start-maximized")  # Open browser in maximized mode
+driver = webdriver.Chrome(service=service, options=options)
 
-USERNAME = "_harinadh___"  
-PASSWORD = ""  
-L.login(USERNAME, PASSWORD)
+# Function to scrape posts by hashtag
+def scrape_hashtag_posts(hashtag, max_posts=100):
+    driver.get(f"https://www.instagram.com/explore/tags/{hashtag}/")
+    time.sleep(5)  # Wait for page to load
 
+    posts = []
+    post_count = 0
 
-csv_filename = 'instagram_profile_posts.csv'
+    while post_count < max_posts:
+        # Load more posts by scrolling down
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(5)  # Wait for new posts to load
+
+        # Find post elements
+        post_elements = driver.find_elements(By.CSS_SELECTOR, "article > div img")
+        for element in post_elements:
+            post_url = element.get_attribute("src")
+            posts.append([post_url])
+            post_count += 1
+            if post_count >= max_posts:
+                break
+
+    return posts
+
+# Function to scrape posts by search query
+def scrape_search_posts(query, max_posts=100):
+    driver.get(f"https://www.instagram.com/explore/tags/{query}/")
+    time.sleep(5)  # Wait for page to load
+
+    posts = []
+    post_count = 0
+
+    while post_count < max_posts:
+        # Load more posts by scrolling down
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(5)  # Wait for new posts to load
+
+        # Find post elements
+        post_elements = driver.find_elements(By.CSS_SELECTOR, "article > div img")
+        for element in post_elements:
+            post_url = element.get_attribute("src")
+            posts.append([post_url])
+            post_count += 1
+            if post_count >= max_posts:
+                break
+
+    return posts
+
+# Save posts to CSV
+csv_filename = 'instagram_posts.csv'
 with open(csv_filename, 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(['Post URL', 'Username', 'Caption', 'Date', 'Likes', 'Comments'])
+    writer.writerow(['Post URL'])  # Adjust headers as necessary
 
-def scrape_profile_posts(profile_name):
-    profile = instaloader.Profile.from_username(L.context, profile_name)
+    hashtags = ["disaster", "naturaldisaster"]  # Replace with your hashtags
+    for hashtag in hashtags:
+        posts = scrape_hashtag_posts(hashtag)
+        for post in posts:
+            writer.writerow(post)
 
-    post_count = 0
-    for post in profile.get_posts():
-        post_count += 1
-        print(f"{datetime.now()} - Scraping post {post_count}...")
+    queries = ['disaster', 'flood', 'earthquake']  # Replace with your queries
+    for query in queries:
+        posts = scrape_search_posts(query)
+        for post in posts:
+            writer.writerow(post)
 
-        post_url = f"https://www.instagram.com/p/{post.shortcode}/"
-        username = post.owner_username
-        caption = post.caption
-        post_date = post.date
-        likes = post.likes
-        comments = post.comments
+print("Finished scraping posts.")
 
-
-        with open(csv_filename, 'a', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            writer.writerow([post_url, username, caption, post_date, likes, comments])
-
-
-        time.sleep(2)
-
-    print(f"{datetime.now()} - Finished scraping {post_count} posts for profile: {profile_name}")
-
-if __name__ == "__main__":
-    try:
-        profile_name = "ndrfindia"
-        scrape_profile_posts(profile_name)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+# Close the browser
+driver.quit()
