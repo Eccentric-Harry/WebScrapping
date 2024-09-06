@@ -31,7 +31,13 @@ def scrape_hashtag_posts(hashtag, max_posts=100):
         post_elements = driver.find_elements(By.CSS_SELECTOR, "article > div img")
         for element in post_elements:
             post_url = element.get_attribute("src")
-            posts.append([post_url])
+
+            # Find the caption element
+            post_parent = element.find_element(By.XPATH, "..")  # Get the parent of the image
+            caption_element = post_parent.find_element(By.CSS_SELECTOR, "div.C4VMK span")
+            caption = caption_element.text if caption_element else "No caption"
+
+            posts.append([post_url, caption])
             post_count += 1
             if post_count >= max_posts:
                 break
@@ -55,7 +61,13 @@ def scrape_search_posts(query, max_posts=100):
         post_elements = driver.find_elements(By.CSS_SELECTOR, "article > div img")
         for element in post_elements:
             post_url = element.get_attribute("src")
-            posts.append([post_url])
+
+            # Find the caption element
+            post_parent = element.find_element(By.XPATH, "..")  # Get the parent of the image
+            caption_element = post_parent.find_element(By.CSS_SELECTOR, "div.C4VMK span")
+            caption = caption_element.text if caption_element else "No caption"
+
+            posts.append([post_url, caption])
             post_count += 1
             if post_count >= max_posts:
                 break
@@ -66,7 +78,7 @@ def scrape_search_posts(query, max_posts=100):
 csv_filename = 'instagram_posts.csv'
 with open(csv_filename, 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(['Post URL'])  # Adjust headers as necessary
+    writer.writerow(['Post URL', 'Caption'])  # Adjust headers as necessary
 
     hashtags = ["disaster", "naturaldisaster"]  # Replace with your hashtags
     for hashtag in hashtags:

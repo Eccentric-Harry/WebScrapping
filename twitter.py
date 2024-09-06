@@ -6,8 +6,8 @@ import csv
 from configparser import ConfigParser
 from random import randint
 
-MINIMUM_TWEETS = 200;
-QUERY = '(coding OR leetcode OR #100daysofcoding OR #placements OR "DSA") lang:en'
+MINIMUM_TWEETS = 20;
+QUERY = '(Floods OR #naturaldisaster OR earthquake OR tsunami OR firefighters OR landslide OR #floods  OR "Natural Disaster") lang:en'
 
 async def get_tweets(client, tweets):
     if tweets is None:
