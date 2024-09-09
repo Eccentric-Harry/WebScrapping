@@ -6,8 +6,8 @@ import csv
 from configparser import ConfigParser
 from random import randint
 
-MINIMUM_TWEETS = 20;
-QUERY = '(Floods OR #naturaldisaster OR earthquake OR tsunami OR firefighters OR landslide OR #floods  OR "Natural Disaster") lang:en'
+MINIMUM_TWEETS = 100;
+QUERY = '(floods OR #naturaldisaster OR #floods OR earthquake OR tsunami OR firefighters OR landslide OR "Natural Disaster") lang:en'
 
 async def get_tweets(client, tweets):
     if tweets is None:
@@ -25,7 +25,7 @@ async def main():
     #* login credentials
     config = ConfigParser()
     config.read('config.ini')
-    username = config['X']['username']
+    username = config['X']['username']  
     email = config['X']['email']
     password = config['X']['password']
 
